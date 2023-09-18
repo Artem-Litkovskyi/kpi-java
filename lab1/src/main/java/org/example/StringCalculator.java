@@ -8,7 +8,7 @@ public class StringCalculator {
         if (value.isBlank()) { return result; }
 
         // Split by a delimiter
-        String[] array = value.split(",");
+        String[] array = value.split("[,\n]", -1);
         if (array.length == 0) { throw new IllegalArgumentException("found no numbers"); }
 
         // Add numbers
@@ -16,7 +16,12 @@ public class StringCalculator {
             try {
                 result += Integer.parseInt(item);
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException(String.format("\"%s\" is not an integer", item));
+                throw new IllegalArgumentException(
+                        String.format(
+                                "\"%s\" is not an integer",
+                                item.replace("\n", "\\n")
+                        )
+                );
             }
         }
 
