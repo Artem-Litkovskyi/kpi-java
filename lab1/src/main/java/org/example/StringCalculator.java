@@ -6,10 +6,13 @@ public class StringCalculator {
     private static final String CUSTOM_DEL_START = "//";
     private static final String CUSTOM_DEL_END = "\n";
     private static final String DEFAULT_DELIMITERS = ",\n";
+    private static final int IGNORE_THRESHOLD = 1000;
 
     public static int add(String value) {
         int result = 0;
+        int number;
 
+        StringBuilder neg_numbers = new StringBuilder();
         StringBuilder delimiters = new StringBuilder();
 
         Pattern custom_short_del_pattern = Pattern.compile(String.format("\\A%s.%s", CUSTOM_DEL_START, CUSTOM_DEL_END));
@@ -30,23 +33,33 @@ public class StringCalculator {
             );
         }
 
-        // Split by a delimiter
+        // Split by delimiters
         String[] array = value.substring(custom_del_substring.length()).split(
                 String.format("[%s]", delimiters), -1);
-        if (array.length == 0) { throw new IllegalArgumentException("found no numbers"); }
+        if (array.length == 0) throw new IllegalArgumentException("found no numbers");
 
         // Add numbers
         for (String item : array) {
             try {
-                result += Integer.parseInt(item);
+                number = Integer.parseInt(item);
+
+                if (number < 0) {
+                    if (!neg_numbers.isEmpty()) neg_numbers.append(", ");
+                    neg_numbers.append(item);
+                }
+
+                if (number > IGNORE_THRESHOLD) continue;
+
+                result += number;
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException(
-                        String.format(
-                                "\"%s\" is not an integer",
-                                item.replace("\n", "\\n")
-                        )
-                );
+                        String.format("\"%s\" is not an integer", item.replace("\n", "\\n")));
             }
+        }
+
+        if (!neg_numbers.isEmpty()) {
+            throw new IllegalArgumentException(
+                    String.format("negative numbers were found (%s)", neg_numbers));
         }
 
         return result;
