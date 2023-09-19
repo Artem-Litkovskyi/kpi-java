@@ -11,39 +11,22 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         // Print the title screen
-        System.out.printf("\n\n\n%s\n", getSeparator("Lab1: TDD Kata", SEP_SYMBOL, SEP_SYMBOL_N));
-        System.out.println("Enter numbers separated by comma or a newline character.");
-        System.out.println("When using newline characters as delimiters leave a new line empty to mark the end of input.");
+        System.out.printf("\n\n\n%s\n", getSeparator("Lab1: TDD Kata"));
+        System.out.println("Enter numbers separated by delimiters (\",\" or \"\\n\").");
         System.out.printf("You can also enter \"%s\" if you want to quit.\n", CMD_QUIT);
 
         while (true) {
-            boolean isFirstLine = true;
-            boolean isCmdQuitEntered = false;
-            StringBuilder input = new StringBuilder();
-
+            // Get input
             System.out.print("\nEnter a string: ");
+            String input = scanner.nextLine();
+            input = input.replace("\\n", "\n");  // Replace each "\n" by a real \n
 
-            // Get input line by line
-            while (true) {
-                String line = scanner.nextLine();
-
-                if (line.isEmpty()) break;  // Empty line marks an end of input
-
-                if (!isFirstLine) input.append("\n");  // Add a "\n" between lines
-                input.append(line);
-
-                if (!isFirstLine) continue;
-                isFirstLine = false;
-                if (!line.equalsIgnoreCase(CMD_QUIT)) continue;  // Detect a CMD_QUIT string
-                isCmdQuitEntered = true;
-                break;
-            }
-
-            if (isCmdQuitEntered) { break; }  // Stop if a CMD_QUIT string was entered
+            // Detect a CMD_QUIT
+            if (input.equalsIgnoreCase(CMD_QUIT)) { break; }
 
             // Print result
             try {
-                int result = StringCalculator.add(input.toString());
+                int result = StringCalculator.add(input);
                 System.out.printf("Result: %d\n", result);
             } catch (IllegalArgumentException e) {
                 System.out.printf("Something went wrong: %s\n", e.getMessage());
@@ -51,16 +34,16 @@ public class Main {
         }
 
         // Print the "end" string
-        System.out.printf("%s\n\n", getSeparator("end", SEP_SYMBOL, SEP_SYMBOL_N));
+        System.out.printf("%s\n\n", getSeparator("end"));
     }
 
-    private static String getSeparator(String message, char symbol, int separatorLength) {
+    private static String getSeparator(String message) {
         String messageStripped = message.strip();
-        int symbolsNumber = (separatorLength - messageStripped.length() - 2) / 2;
-        int symbolsAdditional = (separatorLength - messageStripped.length() - 2) % 2;
+        int symbolsNumber = (SEP_SYMBOL_N - messageStripped.length() - 2) / 2;
+        int symbolsAdditional = (SEP_SYMBOL_N - messageStripped.length() - 2) % 2;
 
-        return String.valueOf(symbol).repeat(symbolsNumber + symbolsAdditional) +
+        return String.valueOf(SEP_SYMBOL).repeat(symbolsNumber + symbolsAdditional) +
                 String.format(" %s ", messageStripped) +
-                String.valueOf(symbol).repeat(symbolsNumber);
+                String.valueOf(SEP_SYMBOL).repeat(symbolsNumber);
     }
 }
