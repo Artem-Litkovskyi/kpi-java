@@ -5,13 +5,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class StringCalculatorTest {
     private record assertEqualsTest(
-        String value,
-        int expected
+            String value,
+            int expected
     ) {}
 
     private record assertThrowsTest(
-        String value,
-        Class<? extends Throwable> exceptionClass
+            String value,
+            Class<? extends Throwable> exceptionClass
     ) {}
 
     private void runAssertEqualsTests(assertEqualsTest[] tests) {
@@ -81,7 +81,10 @@ public class StringCalculatorTest {
         };
 
         assertThrowsTest[] assertThrowsTests = new assertThrowsTest[] {
-                new assertThrowsTest("//;\n1,2\n3;;4", IllegalArgumentException.class)
+                new assertThrowsTest("1,//a\n", IllegalArgumentException.class),
+                new assertThrowsTest("//;\n1,//a\n", IllegalArgumentException.class),
+                new assertThrowsTest("//;\n1,2\n3;;4", IllegalArgumentException.class),
+                new assertThrowsTest("//;^#\n1,2\n3;;4", IllegalArgumentException.class)
         };
 
         runAssertEqualsTests(assertEqualsTests);
@@ -95,7 +98,10 @@ public class StringCalculatorTest {
         };
 
         assertThrowsTest[] assertThrowsTests = new assertThrowsTest[] {
-                new assertThrowsTest("//[**]\n1**11***111,1\n4", IllegalArgumentException.class)
+                new assertThrowsTest("1,2//[^^]\n", IllegalArgumentException.class),
+                new assertThrowsTest("//[**]\n1**//[^^]\n", IllegalArgumentException.class),
+                new assertThrowsTest("//[**]\n1**11***111,1\n4", IllegalArgumentException.class),
+                new assertThrowsTest("//[**]qwe\n1**11***111,1\n4", IllegalArgumentException.class)
         };
 
         runAssertEqualsTests(assertEqualsTests);
@@ -110,7 +116,8 @@ public class StringCalculatorTest {
         };
 
         assertThrowsTest[] assertThrowsTests = new assertThrowsTest[] {
-                new assertThrowsTest("//[**][delimiter]\n11dewimitew22**33", IllegalArgumentException.class)
+                new assertThrowsTest("//[**][delimiter]\n11dewimitew22**33", IllegalArgumentException.class),
+                new assertThrowsTest("//[**]qwe[delimiter]rty\n11dewimitew22**33", IllegalArgumentException.class)
         };
 
         runAssertEqualsTests(assertEqualsTests);

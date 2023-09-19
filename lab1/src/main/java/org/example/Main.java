@@ -13,6 +13,8 @@ public class Main {
         // Print the title screen
         System.out.printf("\n\n\n%s\n", getSeparator("Lab1: TDD Kata"));
         System.out.println("Enter numbers separated by delimiters (\",\" or \"\\n\").");
+        System.out.println("To set custom delimiters enter them before numbers in one of these ways:");
+        System.out.println("\ta) \"//*\\n[numbers]\", where \"*\" is a custom one character delimiter");
         System.out.printf("You can also enter \"%s\" if you want to quit.\n", CMD_QUIT);
 
         while (true) {
