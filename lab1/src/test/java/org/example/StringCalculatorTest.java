@@ -115,7 +115,8 @@ public class StringCalculatorTest {
     public void testAddMultipleCustomDelimiters() {
         assertEqualsTest[] assertEqualsTests = new assertEqualsTest[] {
                 new assertEqualsTest("//[*][%]\n1*2%3", 6),
-                new assertEqualsTest("//[**][delimiter]\n11delimiter22**33", 66)
+                new assertEqualsTest("//[**][delimiter]\n11delimiter22**33", 66),
+                new assertEqualsTest("//[*][***][**]\n1*1***1,1**1\n1", 6)
         };
 
         assertThrowsTest[] assertThrowsTests = new assertThrowsTest[] {

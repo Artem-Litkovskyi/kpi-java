@@ -1,6 +1,7 @@
 package org.example;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.regex.*;
 
 public class StringCalculator {
@@ -126,6 +127,8 @@ public class StringCalculator {
         regex.append(String.format("[%s]", DEFAULT_DELIMITERS));
 
         if (custom_delimiters.isEmpty()) return regex.toString();
+
+        custom_delimiters.sort(Comparator.comparingInt(String::length).reversed());
 
         for (var delimiter : custom_delimiters) {
             char meta_char;
