@@ -3,61 +3,48 @@ package org.example;
 import java.util.Scanner;
 
 public class Main {
-    private static final char SEP_SYMBOL = '=';
-    private static final char SEP_LENGTH = 64;
     private static final String CMD_QUIT = "q";
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        // Print the title screen
-        System.out.printf("\n\n\n%s\n\n", getSeparator("Lab1: TDD Kata"));
-        System.out.println("Enter numbers separated by delimiters (\",\" or \"\\n\" by default)");
-        System.out.println("\nTo add custom delimiters, enter them before numbers in a one of these ways:");
-        System.out.println("\ta) One character: \"//*\\n[numbers]\" (\"*\" is a delimiter)");
-        System.out.println("\tb) Long: \"//[***]\\n[numbers]\" (\"***\" is a delimiter)");
-        System.out.println("\tc) Multiple: \"//[*][**]\\n[numbers]\" (\"*\" and \"**\" are delimiters)");
-        System.out.println("\n[!] Note that:");
-        System.out.println("\t1. Negative numbers are not supported;");
-        System.out.println("\t2. Numbers greater than 1000 will be ignored.");
-        System.out.printf("\nYou can also enter \"%s\" if you want to quit.\n\n", CMD_QUIT);
-//        System.out.printf("\n%s\n\n", getSeparator());
+        String titleSeparator = getSeparator("Lab1: TDD Kata", '=', 10);
+        System.out.printf("\n\n\n%s", titleSeparator);
 
         while (true) {
             // Get input
-            System.out.print("Enter a string: ");
+            System.out.printf("\nEnter numbers separated by comma (enter \"%s\" to quit): ", CMD_QUIT);
             String input = scanner.nextLine();
-            input = input.replace("\\n", "\n");  // Replace each "\n" by a real \n
 
-            // Detect a CMD_QUIT
+            // Stop if user entered CMD_QUIT
             if (input.equalsIgnoreCase(CMD_QUIT)) { break; }
 
             // Print result
             try {
                 int result = StringCalculator.add(input);
-                System.out.printf("Result: %d\n\n", result);
+                System.out.printf("Result: %d", result);
             } catch (IllegalArgumentException e) {
-                System.out.printf("Something went wrong: %s\n\n", e.getMessage());
+                System.out.printf("Something went wrong: %s", e.getMessage());
             }
         }
 
-        // Print the "end" string
-        System.out.printf("\n%s\n\n", getSeparator("end"));
+        System.out.printf("\n%s\n\n", getSeparatorOfLength("end", '=', titleSeparator.length()));
     }
 
-    private static String getSeparator() {
-        return String.valueOf(SEP_SYMBOL).repeat(SEP_LENGTH);
-    }
-
-    private static String getSeparator(String message) {
-        if (message.isEmpty()) return getSeparator();
-
+    private static String getSeparator(String message, char symbol, int symbolsNumber) {
         String messageStripped = message.strip();
-        int symbolsNumber = (SEP_LENGTH - messageStripped.length() - 2) / 2;
-        int symbolsAdditional = (SEP_LENGTH - messageStripped.length() - 2) % 2;
-
-        return String.valueOf(SEP_SYMBOL).repeat(symbolsNumber + symbolsAdditional) +
+        return String.valueOf(symbol).repeat(symbolsNumber) +
                 String.format(" %s ", messageStripped) +
-                String.valueOf(SEP_SYMBOL).repeat(symbolsNumber);
+                String.valueOf(symbol).repeat(symbolsNumber);
+    }
+
+    private static String getSeparatorOfLength(String message, char symbol, int separatorLength) {
+        String messageStripped = message.strip();
+        int symbolsNumber = (separatorLength - messageStripped.length() - 2) / 2;
+        int symbolsAdditional = (separatorLength - messageStripped.length() - 2) % 2;
+
+        return String.valueOf(symbol).repeat(symbolsNumber + symbolsAdditional) +
+                String.format(" %s ", messageStripped) +
+                String.valueOf(symbol).repeat(symbolsNumber);
     }
 }
