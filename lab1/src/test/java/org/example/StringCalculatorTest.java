@@ -77,7 +77,9 @@ public class StringCalculatorTest {
     @Test
     public void testAddCustomShortDelimiter() {
         assertEqualsTest[] assertEqualsTests = new assertEqualsTest[] {
-                new assertEqualsTest("//;\n1,2\n3;4", 10)
+                new assertEqualsTest("//;\n1,2\n3;4", 10),
+                new assertEqualsTest("//.\n1.2", 3),
+                new assertEqualsTest("//*\n1*2", 3),
         };
 
         assertThrowsTest[] assertThrowsTests = new assertThrowsTest[] {
@@ -100,6 +102,7 @@ public class StringCalculatorTest {
         assertThrowsTest[] assertThrowsTests = new assertThrowsTest[] {
                 new assertThrowsTest("1,2//[^^]\n", IllegalArgumentException.class),
                 new assertThrowsTest("//[**]\n1**//[^^]\n", IllegalArgumentException.class),
+                new assertThrowsTest("//[]\n1,2", IllegalArgumentException.class),
                 new assertThrowsTest("//[**]\n1**11***111,1\n4", IllegalArgumentException.class),
                 new assertThrowsTest("//[**]qwe\n1**11***111,1\n4", IllegalArgumentException.class)
         };
@@ -111,8 +114,8 @@ public class StringCalculatorTest {
     @Test
     public void testAddMultipleCustomDelimiters() {
         assertEqualsTest[] assertEqualsTests = new assertEqualsTest[] {
-                new assertEqualsTest("//[;][*]\n1,2\n3;4*100", 110),
-                new assertEqualsTest("//[**][delimiter]\n11delimiter22**33", 55)
+                new assertEqualsTest("//[*][%]\n1*2%3", 6),
+                new assertEqualsTest("//[**][delimiter]\n11delimiter22**33", 66)
         };
 
         assertThrowsTest[] assertThrowsTests = new assertThrowsTest[] {
