@@ -1,6 +1,7 @@
 package org.example;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.regex.*;
 
 public class StringCalculator {
@@ -18,125 +19,120 @@ public class StringCalculator {
 
     public static int add(String value) {
         int result = 0;
-        StringBuilder neg_numbers = new StringBuilder();
+        StringBuilder negativeNumbers = new StringBuilder();
 
         // Check for empty string
         if (value.isBlank()) { return result; }
 
         // Get custom delimiters
-        ArrayList<String> custom_delimiters = new ArrayList<>() {};
-        Pattern custom_short_del_pattern = Pattern.compile(String.format("\\A%s.%s", CUSTOM_DELS_BEGIN, CUSTOM_DELS_END));
-        Matcher custom_short_del_matcher = custom_short_del_pattern.matcher(value);
-        Pattern custom_del_pattern = Pattern.compile(String.format("\\A%s.*?%s", CUSTOM_DELS_BEGIN, CUSTOM_DELS_END));
-        Matcher custom_del_matcher = custom_del_pattern.matcher(value);
-        String custom_del_substring = "";
-        String numbers_substring = "";
+        ArrayList<String> customDelimiters = new ArrayList<>() {};
+        Pattern customShortDelPattern = Pattern.compile(String.format("\\A%s.%s", CUSTOM_DELS_BEGIN, CUSTOM_DELS_END));
+        Matcher customShortDelMatcher = customShortDelPattern.matcher(value);
+        Pattern customDelPattern = Pattern.compile(String.format("\\A%s.*?%s", CUSTOM_DELS_BEGIN, CUSTOM_DELS_END));
+        Matcher customDelMatcher = customDelPattern.matcher(value);
+        String customDelSubstring = "";
+        String numbersSubstring = "";
 
-        if (custom_short_del_matcher.find()) {  // Single custom one character delimiter
-            custom_del_substring = custom_short_del_matcher.group();
-            custom_delimiters.add(getCustomShortDelimiter(custom_del_substring));
-        } else if (custom_del_matcher.find()) {  // Other more complex cases
-            custom_del_substring = custom_del_matcher.group();
-            custom_delimiters.addAll(getCustomDelimiters(custom_del_substring));
+        if (customShortDelMatcher.find()) {  // Single custom one-character delimiter
+            customDelSubstring = customShortDelMatcher.group();
+            customDelimiters.add(trimCustomDelSubstring(customDelSubstring));
+        } else if (customDelMatcher.find()) {  // Other more complex cases
+            customDelSubstring = customDelMatcher.group();
+            customDelimiters.addAll(getCustomDelimiters(trimCustomDelSubstring(customDelSubstring)));
         }
 
-        numbers_substring = value.substring(custom_del_substring.length());
-
-        // Split by delimiters
-        String[] numbers = numbers_substring.split(buildDelimitersRegex(custom_delimiters), -1);
+        // Split numbers by delimiters
+        numbersSubstring = value.substring(customDelSubstring.length());
+        String[] numbers = numbersSubstring.split(buildDelimitersRegex(customDelimiters), -1);
         if (numbers.length == 0) throw new IllegalArgumentException("found no numbers");
 
         // Add numbers
-        int current_int;
+        int currentInt;
         for (String item : numbers) {
             try {
-                current_int = Integer.parseInt(item);
+                currentInt = Integer.parseInt(item);
 
-                if (current_int < 0) {
-                    if (!neg_numbers.isEmpty()) neg_numbers.append(", ");
-                    neg_numbers.append(item);
+                if (currentInt < 0) {  // Remember negative numbers
+                    if (!negativeNumbers.isEmpty()) negativeNumbers.append(", ");
+                    negativeNumbers.append(item);
                 }
 
-                if (current_int > IGNORE_THRESHOLD) continue;
+                if (currentInt > IGNORE_THRESHOLD) continue;
 
-                result += current_int;
+                result += currentInt;
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException(
+                throw new IllegalArgumentException(  // If failed parsing
                         String.format("\"%s\" is not an integer", item.replace("\n", "\\n")));
             }
         }
 
-        if (!neg_numbers.isEmpty()) {
-            throw new IllegalArgumentException(
-                    String.format("negative numbers were found (%s)", neg_numbers));
+        if (!negativeNumbers.isEmpty()) {
+            throw new IllegalArgumentException(  // If found negative numbers
+                    String.format("negative numbers were found (%s)", negativeNumbers));
         }
 
         return result;
     }
 
-    private static String _trimCustomDelSubstring(String custom_del_substring) {
-        return custom_del_substring.substring(
+    private static String trimCustomDelSubstring(String customDelSubstring) {
+        return customDelSubstring.substring(
                 CUSTOM_DELS_BEGIN.length(),
-                custom_del_substring.length() - CUSTOM_DELS_END.length());
+                customDelSubstring.length() - CUSTOM_DELS_END.length());
     }
 
-    private static String getCustomShortDelimiter(String custom_del_substring) {
-        return _trimCustomDelSubstring(custom_del_substring);
-    }
-
-    private static ArrayList<String> getCustomDelimiters(String custom_del_substring) {
-        String trimmed_substring = _trimCustomDelSubstring(custom_del_substring);
-        ArrayList<String> custom_delimiters = new ArrayList<>();
+    private static ArrayList<String> getCustomDelimiters(String trimmedCustomDelSubstring) {
+        ArrayList<String> customDelimiters = new ArrayList<>();
         StringBuilder buffer = new StringBuilder();
-        boolean del_began = false;
+        boolean delBegan = false;
 
-        for (int i = 0; i < trimmed_substring.length(); i++) {
-            char current_char = trimmed_substring.charAt(i);
-            if (!del_began) {
-                if (current_char == CUSTOM_DEL_BEGIN) {
-                    del_began = true;
+        for (int i = 0; i < trimmedCustomDelSubstring.length(); i++) {
+            char currentChar = trimmedCustomDelSubstring.charAt(i);
+            if (!delBegan) {
+                if (currentChar == CUSTOM_DEL_BEGIN) {
+                    delBegan = true;
                     continue;
                 }
                 throw new IllegalArgumentException(  // If "[" is missing
-                        String.format("can't recognise custom delimiters (\"%c\" is missing)", CUSTOM_DEL_BEGIN));
+                        String.format("can't recognise custom delimiters (\"%c\" is missing)",
+                                CUSTOM_DEL_BEGIN));
             } else {
-                if (current_char == CUSTOM_DEL_END) {
-                    del_began = false;
-                    if (buffer.isEmpty())
-                        throw new IllegalArgumentException(  // If "[]" was found
-                                String.format("custom delimiters can't be empty (\"%c%c\" was found)",
-                                        CUSTOM_DEL_BEGIN, CUSTOM_DEL_END));
-                    custom_delimiters.add(buffer.toString());
+                if (currentChar != CUSTOM_DEL_END) {
+                    buffer.append(currentChar);
+                    continue;
+                } else if (!buffer.isEmpty()) {
+                    delBegan = false;
+                    customDelimiters.add(buffer.toString());
                     buffer.setLength(0);
                     continue;
                 }
-                buffer.append(current_char);
+                throw new IllegalArgumentException(  // If "[]" was found
+                        String.format("custom delimiters can't be empty (\"%c%c\" was found)",
+                                CUSTOM_DEL_BEGIN, CUSTOM_DEL_END));
             }
         }
 
-        if (del_began)  // If "]" is missing
+        if (delBegan)  // If "]" is missing
             throw new IllegalArgumentException(
                 String.format("can't recognise custom delimiters (\"%c\" is missing)", CUSTOM_DEL_END));
 
-        if (custom_delimiters.size() > 1)
-            throw new IllegalArgumentException("can't use more than one custom delimiter");
-
-        return custom_delimiters;
+        return customDelimiters;
     }
 
-    private static String buildDelimitersRegex(ArrayList<String> custom_delimiters) {
+    private static String buildDelimitersRegex(ArrayList<String> customDelimiters) {
         StringBuilder regex = new StringBuilder();
         regex.append(String.format("[%s]", DEFAULT_DELIMITERS));
 
-        if (custom_delimiters.isEmpty()) return regex.toString();
+        if (customDelimiters.isEmpty()) return regex.toString();
 
-        for (var delimiter : custom_delimiters) {
-            char meta_char;
+        customDelimiters.sort(Comparator.comparingInt(String::length).reversed());
+
+        for (var delimiter : customDelimiters) {
+            char metaChar;
 
             // Replace meta characters with escape sequences
             for (int i = 0; i < REGEX_METACHARACTERS.length(); i++) {
-                meta_char = REGEX_METACHARACTERS.charAt(i);
-                delimiter = delimiter.replace(String.format("%c", meta_char), String.format("\\%c", meta_char));
+                metaChar = REGEX_METACHARACTERS.charAt(i);
+                delimiter = delimiter.replace(String.format("%c", metaChar), String.format("\\%c", metaChar));
             }
 
             regex.append("|").append(delimiter);

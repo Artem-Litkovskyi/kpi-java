@@ -14,32 +14,6 @@ public class StringCalculatorTest {
             Class<? extends Throwable> exceptionClass
     ) {}
 
-    private void runAssertEqualsTests(assertEqualsTest[] tests) {
-        for (var data : tests) {
-            assertEquals(
-                    data.expected,
-                    StringCalculator.add(data.value),
-                    String.format(
-                            "StringCalculator.add(\"%s\")",
-                            data.value.replace("\n", "\\n")
-                    )
-            );
-        }
-    }
-
-    private void runAssertThrowsTests(assertThrowsTest[] tests) {
-        for (var data : tests) {
-            assertThrows(
-                    data.exceptionClass,
-                    () -> StringCalculator.add(data.value),
-                    String.format(
-                            "StringCalculator.add(\"%s\")",
-                            data.value.replace("\n", "\\n")
-                    )
-            );
-        }
-    }
-
     @Test
     public void testAddBasicComma() {
         assertEqualsTest[] assertEqualsTests = new assertEqualsTest[] {
@@ -115,7 +89,8 @@ public class StringCalculatorTest {
     public void testAddMultipleCustomDelimiters() {
         assertEqualsTest[] assertEqualsTests = new assertEqualsTest[] {
                 new assertEqualsTest("//[*][%]\n1*2%3", 6),
-                new assertEqualsTest("//[**][delimiter]\n11delimiter22**33", 66)
+                new assertEqualsTest("//[**][delimiter]\n11delimiter22**33", 66),
+                new assertEqualsTest("//[*][***][**]\n1*1***1,1**1\n1", 6)
         };
 
         assertThrowsTest[] assertThrowsTests = new assertThrowsTest[] {
@@ -146,5 +121,31 @@ public class StringCalculatorTest {
         };
 
         runAssertEqualsTests(assertEqualsTests);
+    }
+
+    private void runAssertEqualsTests(assertEqualsTest[] tests) {
+        for (var data : tests) {
+            assertEquals(
+                    data.expected,
+                    StringCalculator.add(data.value),
+                    String.format(
+                            "StringCalculator.add(\"%s\")",
+                            data.value.replace("\n", "\\n")
+                    )
+            );
+        }
+    }
+
+    private void runAssertThrowsTests(assertThrowsTest[] tests) {
+        for (var data : tests) {
+            assertThrows(
+                    data.exceptionClass,
+                    () -> StringCalculator.add(data.value),
+                    String.format(
+                            "StringCalculator.add(\"%s\")",
+                            data.value.replace("\n", "\\n")
+                    )
+            );
+        }
     }
 }

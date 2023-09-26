@@ -16,6 +16,7 @@ public class Main {
         System.out.println("\nTo add custom delimiters, enter them before numbers in a one of these ways:");
         System.out.println("\ta) One character: \"//*\\n[numbers]\" (\"*\" is a delimiter)");
         System.out.println("\tb) Long: \"//[***]\\n[numbers]\" (\"***\" is a delimiter)");
+        System.out.println("\tc) Multiple: \"//[*][**]\\n[numbers]\" (\"*\" and \"**\" are delimiters)");
         System.out.println("\n[!] Note that:");
         System.out.println("\t1. Negative numbers are not supported;");
         System.out.println("\t2. Numbers greater than 1000 will be ignored.");
