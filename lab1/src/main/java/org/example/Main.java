@@ -3,48 +3,58 @@ package org.example;
 import java.util.Scanner;
 
 public class Main {
+    private static final char SEP_SYMBOL = '=';
+    private static final char SEP_LENGTH = 64;
     private static final String CMD_QUIT = "q";
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        String titleSeparator = getSeparator("Lab1: TDD Kata", '=', 10);
-        System.out.printf("\n\n\n%s", titleSeparator);
+        // Print the title screen
+        System.out.printf("\n\n\n%s\n\n", getSeparator("Lab1: TDD Kata"));
+        System.out.println("Enter numbers separated by delimiters (\",\" or \"\\n\" by default)");
+        System.out.println("\nTo set custom delimiters, enter them before numbers in a one of these ways:");
+        System.out.println("\ta) \"//*\\n[numbers]\", where \"*\" is a one character delimiter");
+        System.out.println("\n[!] Note that:");
+        System.out.println("\t1. Negative numbers are not supported;");
+        System.out.printf("\nYou can also enter \"%s\" if you want to quit.\n\n", CMD_QUIT);
+//        System.out.printf("\n%s\n\n", getSeparator());
 
         while (true) {
             // Get input
-            System.out.printf("\nEnter numbers separated by comma (enter \"%s\" to quit): ", CMD_QUIT);
+            System.out.print("Enter a string: ");
             String input = scanner.nextLine();
+            input = input.replace("\\n", "\n");  // Replace each "\n" by a real \n
 
-            // Stop if user entered CMD_QUIT
+            // Detect a CMD_QUIT
             if (input.equalsIgnoreCase(CMD_QUIT)) { break; }
 
             // Print result
             try {
                 int result = StringCalculator.add(input);
-                System.out.printf("Result: %d", result);
+                System.out.printf("Result: %d\n\n", result);
             } catch (IllegalArgumentException e) {
-                System.out.printf("Something went wrong: %s", e.getMessage());
+                System.out.printf("Something went wrong: %s\n\n", e.getMessage());
             }
         }
 
-        System.out.printf("\n%s\n\n", getSeparatorOfLength("end", '=', titleSeparator.length()));
+        // Print the "end" string
+        System.out.printf("\n%s\n\n", getSeparator("end"));
     }
 
-    private static String getSeparator(String message, char symbol, int symbolsNumber) {
-        String messageStripped = message.strip();
-        return String.valueOf(symbol).repeat(symbolsNumber) +
-                String.format(" %s ", messageStripped) +
-                String.valueOf(symbol).repeat(symbolsNumber);
+    private static String getSeparator() {
+        return String.valueOf(SEP_SYMBOL).repeat(SEP_LENGTH);
     }
 
-    private static String getSeparatorOfLength(String message, char symbol, int separatorLength) {
-        String messageStripped = message.strip();
-        int symbolsNumber = (separatorLength - messageStripped.length() - 2) / 2;
-        int symbolsAdditional = (separatorLength - messageStripped.length() - 2) % 2;
+    private static String getSeparator(String message) {
+        if (message.isEmpty()) return getSeparator();
 
-        return String.valueOf(symbol).repeat(symbolsNumber + symbolsAdditional) +
+        String messageStripped = message.strip();
+        int symbolsNumber = (SEP_LENGTH - messageStripped.length() - 2) / 2;
+        int symbolsAdditional = (SEP_LENGTH - messageStripped.length() - 2) % 2;
+
+        return String.valueOf(SEP_SYMBOL).repeat(symbolsNumber + symbolsAdditional) +
                 String.format(" %s ", messageStripped) +
-                String.valueOf(symbol).repeat(symbolsNumber);
+                String.valueOf(SEP_SYMBOL).repeat(symbolsNumber);
     }
 }
