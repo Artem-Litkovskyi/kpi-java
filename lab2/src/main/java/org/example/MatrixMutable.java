@@ -68,7 +68,7 @@ public class MatrixMutable implements Matrix {
         return columnElements;
     }
 
-    public Matrix add(Matrix matrix) {
+    public MatrixMutable add(Matrix matrix) {
         MatrixMutable result = new MatrixMutable(this);
         for (int i = 0; i < getRowsNumber(); i++) {
             for (int j = 0; j < getColumnsNumber(); j++) {
@@ -78,7 +78,7 @@ public class MatrixMutable implements Matrix {
         return result;
     }
 
-    public Matrix multiply(Double number) {
+    public MatrixMutable multiply(Double number) {
         MatrixMutable result = new MatrixMutable(this);
         for (int i = 0; i < getRowsNumber(); i++) {
             for (int j = 0; j < getColumnsNumber(); j++) {
@@ -88,7 +88,7 @@ public class MatrixMutable implements Matrix {
         return result;
     }
 
-    public Matrix multiply(Matrix matrix) {
+    public MatrixMutable multiply(Matrix matrix) {
         int m = getRowsNumber();
         int n = getColumnsNumber();
         int p = matrix.getColumnsNumber();
@@ -103,7 +103,7 @@ public class MatrixMutable implements Matrix {
         return result;
     }
 
-    public Matrix transpose() {
+    public MatrixMutable transpose() {
         int m = getRowsNumber();
         int n = getColumnsNumber();
         MatrixMutable result = new MatrixMutable(n, m);
