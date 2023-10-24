@@ -3,21 +3,24 @@ package org.example;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class MatrixImmutable implements Matrix {
+public class MatrixImmutable extends AbstractMatrix {
     private final Double[][] elements;
 
+    public MatrixImmutable() {
+        elements = new Double[][] {};
+    }
+
     public MatrixImmutable(Double[][] matrix) {
+        validateRowLengths(matrix);
         elements = matrix;
     }
 
     public MatrixImmutable(Matrix matrix) {
-        elements = new Double[matrix.getRowsNumber()][matrix.getColumnsNumber()];
+        elements = matrix.getElements();
+    }
 
-        for (int i = 0; i < matrix.getRowsNumber(); i++) {
-            for (int j = 0; j < matrix.getColumnsNumber(); j++) {
-                elements[i][j] = matrix.getElement(i, j);
-            }
-        }
+    public MatrixImmutable(int rows, int columns) {
+        elements = zeroMatrixArray(rows, columns);
     }
 
     public int getRowsNumber() {
@@ -42,101 +45,75 @@ public class MatrixImmutable implements Matrix {
 
     public Double[] getColumnElements(int column) {
         Double[] columnElements = new Double[getRowsNumber()];
+
         for (int i = 0; i < columnElements.length; i++) {
             columnElements[i] = getElement(i, column);
         }
+
         return columnElements;
     }
 
-    public MatrixImmutable add(Matrix matrix) {
-        Double[][] result = new Double[getRowsNumber()][getColumnsNumber()];
-        for (int i = 0; i < getRowsNumber(); i++) {
-            for (int j = 0; j < getColumnsNumber(); j++) {
-                result[i][j] = getElement(i, j) + matrix.getElement(i, j);
-            }
-        }
-        return new MatrixImmutable(result);
-    }
-
-    public MatrixImmutable multiply(Double number) {
-        Double[][] result = new Double[getRowsNumber()][getColumnsNumber()];
-        for (int i = 0; i < getRowsNumber(); i++) {
-            for (int j = 0; j < getColumnsNumber(); j++) {
-                result[i][j] = getElement(i, j) * number;
-            }
-        }
-        return new MatrixImmutable(result);
-    }
-
-    public MatrixImmutable multiply(Matrix matrix) {
+    public Double[][] getElements() {
         int m = getRowsNumber();
         int n = getColumnsNumber();
-        int p = matrix.getColumnsNumber();
-        Double[][] result = new Double[m][p];
-
-        for (var row : result) {
-            Arrays.fill(row, 0d);
-        }
-
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < p; j++) {
-                for (int k = 0; k < n; k++) {
-                    result[i][j] = result[i][j] + getElement(i, k) * matrix.getElement(k, j);
-                }
-            }
-        }
-        return new MatrixImmutable(result);
-    }
-
-    public MatrixImmutable transpose() {
-        int m = getRowsNumber();
-        int n = getColumnsNumber();
-        Double[][] result = new Double[n][m];
+        Double[][] elementsArray = new Double[m][n];
 
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
-                result[j][i] = getElement(i, j);
+                elementsArray[i][j] = getElement(i, j);
             }
         }
-        return new MatrixImmutable(result);
+
+        return elementsArray;
+    }
+
+    public MatrixImmutable add(Matrix matrix) {
+        return new MatrixImmutable(add(this, matrix));
+    }
+
+    public MatrixImmutable multiply(Double number) {
+        return new MatrixImmutable(multiply(this, number));
+    }
+
+    public MatrixImmutable multiply(Matrix matrix) {
+        return new MatrixImmutable(multiply(this, matrix));
+    }
+
+    public MatrixImmutable transpose() {
+        return new MatrixImmutable(transpose(this));
+    }
+
+    public Double determinant() {
+        return determinant(getElements());
+    }
+
+    public MatrixImmutable[] luDecomposition() {
+        Double[][][] lu = luDecomposition(getElements());
+        return new MatrixImmutable[] { new MatrixImmutable(lu[0]), new MatrixImmutable(lu[1]) };
+    }
+
+    public static MatrixImmutable zeroMatrix(int rows, int columns) {
+        return new MatrixImmutable(zeroMatrixArray(rows, columns));
     }
 
     public static MatrixImmutable diagonalMatrix(Double[] diagonalElements) {
-        Double[][] result = new Double[diagonalElements.length][diagonalElements.length];
-
-        for (var row : result) {
-            Arrays.fill(row, 0d);
-        }
-
-        for (int i = 0; i < diagonalElements.length; i++) {
-            result[i][i] = diagonalElements[i];
-        }
-        return new MatrixImmutable(result);
+        return new MatrixImmutable(diagonalMatrixArray(diagonalElements));
     }
 
     public static MatrixImmutable identityMatrix(int size) {
-        Double[][] result = new Double[size][size];
-
-        for (var row : result) {
-            Arrays.fill(row, 0d);
-        }
-
-        for (int i = 0; i < size; i++) {
-            result[i][i] = 1d;
-        }
-        return new MatrixImmutable(result);
+        return new MatrixImmutable(identityMatrixArray(size));
     }
 
     public static MatrixImmutable rowMatrix(Double[] rowElements) {
-        return new MatrixImmutable(new Double[][] { rowElements });
+        return new MatrixImmutable(rowMatrixArray(rowElements));
     }
 
     public static MatrixImmutable columnMatrix(Double[] columnElements) {
-        Double[][] result = new Double[columnElements.length][1];
-        for (int i = 0; i < columnElements.length; i++) {
-            result[i][0] = columnElements[i];
-        }
-        return new MatrixImmutable(result);
+        return new MatrixImmutable(columnMatrixArray(columnElements));
+    }
+
+    public static MatrixImmutable randomMatrix(int rows, int columns) {
+        return new MatrixImmutable(randomMatrixArray(rows, columns));
     }
 
     public boolean equals(Object o) {
@@ -144,7 +121,7 @@ public class MatrixImmutable implements Matrix {
         if (o == this) return true;
 
         // If other object is not matrix
-        if (!(o instanceof Matrix matrix)) return false;
+        if (!(o instanceof MatrixImmutable matrix)) return false;
 
         int rowsNumber = getRowsNumber();
         int columnsNumber = getColumnsNumber();
@@ -164,6 +141,6 @@ public class MatrixImmutable implements Matrix {
     }
 
     public int hashCode() {
-        return Arrays.deepHashCode(elements);
+        return Objects.hash(getClass(), Arrays.deepHashCode(elements));
     }
 }

@@ -4,6 +4,7 @@ public interface Matrix {
     Double getElement(int row, int column);
     Double[] getRowElements(int row);
     Double[] getColumnElements(int column);
+    Double[][] getElements();
 
     int getRowsNumber();
     int getColumnsNumber();
@@ -13,4 +14,7 @@ public interface Matrix {
     Matrix multiply(Double number);
     Matrix multiply(Matrix matrix);
     Matrix transpose();
+
+    Double determinant();
+    Matrix[] luDecomposition();
 }

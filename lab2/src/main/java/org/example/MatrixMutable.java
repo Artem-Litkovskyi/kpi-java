@@ -2,38 +2,32 @@ package org.example;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 
-public class MatrixMutable implements Matrix {
+public class MatrixMutable extends AbstractMatrix {
     private final ArrayList<ArrayList<Double>> elements;
 
     public MatrixMutable() {
         elements = new ArrayList<>();
     }
 
-    public MatrixMutable(int rows, int columns) {
+    public MatrixMutable(Double[][] matrix) {
+        validateRowLengths(matrix);
         elements = new ArrayList<>();
-
-        for (int i = 0; i < rows; i++) {
-            elements.add(new ArrayList<>(Collections.nCopies(columns, 0d)));
-        }
+        changeDimension(matrix.length, matrix[0].length);
+        setElements(matrix);
     }
 
     public MatrixMutable(Matrix matrix) {
         elements = new ArrayList<>();
-
-        for (int i = 0; i < matrix.getRowsNumber(); i++) {
-            elements.add(new ArrayList<>(List.of(matrix.getRowElements(i))));
-        }
+        changeDimension(matrix.getRowsNumber(), matrix.getColumnsNumber());
+        setElements(matrix.getElements());
     }
 
-    public MatrixMutable(Double[][] matrix) {
+    public MatrixMutable(int rows, int columns) {
         elements = new ArrayList<>();
-
-        for (Double[] row : matrix) {
-            elements.add(new ArrayList<>(List.of(row)));
-        }
+        changeDimension(rows, columns);
+        setElements(zeroMatrixArray(rows, columns));
     }
 
     public int getRowsNumber() {
@@ -54,109 +48,85 @@ public class MatrixMutable implements Matrix {
 
     public Double[] getRowElements(int row) {
         Double[] rowElements = new Double[getColumnsNumber()];
+
         for (int j = 0; j < rowElements.length; j++) {
             rowElements[j] = getElement(row, j);
         }
+
         return rowElements;
     }
 
     public Double[] getColumnElements(int column) {
         Double[] columnElements = new Double[getRowsNumber()];
+
         for (int i = 0; i < columnElements.length; i++) {
             columnElements[i] = getElement(i, column);
         }
+
         return columnElements;
     }
 
-    public MatrixMutable add(Matrix matrix) {
-        MatrixMutable result = new MatrixMutable(this);
-        for (int i = 0; i < getRowsNumber(); i++) {
-            for (int j = 0; j < getColumnsNumber(); j++) {
-                result.setElement(i, j, result.getElement(i, j) + matrix.getElement(i, j));
+    public Double[][] getElements() {
+        int m = getRowsNumber();
+        int n = getColumnsNumber();
+        Double[][] elementsArray = new Double[m][n];
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                elementsArray[i][j] = getElement(i, j);
             }
         }
-        return result;
+
+        return elementsArray;
+    }
+
+    public MatrixMutable add(Matrix matrix) {
+        return new MatrixMutable(add(this, matrix));
     }
 
     public MatrixMutable multiply(Double number) {
-        MatrixMutable result = new MatrixMutable(this);
-        for (int i = 0; i < getRowsNumber(); i++) {
-            for (int j = 0; j < getColumnsNumber(); j++) {
-                result.setElement(i, j, result.getElement(i, j) * number);
-            }
-        }
-        return result;
+        return new MatrixMutable(multiply(this, number));
     }
 
     public MatrixMutable multiply(Matrix matrix) {
-        int m = getRowsNumber();
-        int n = getColumnsNumber();
-        int p = matrix.getColumnsNumber();
-        MatrixMutable result = new MatrixMutable(m, p);
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < p; j++) {
-                for (int k = 0; k < n; k++) {
-                    result.setElement(i, j, result.getElement(i, j) + getElement(i, k) * matrix.getElement(k, j));
-                }
-            }
-        }
-        return result;
+        return new MatrixMutable(multiply(this, matrix));
     }
 
     public MatrixMutable transpose() {
-        int m = getRowsNumber();
-        int n = getColumnsNumber();
-        MatrixMutable result = new MatrixMutable(n, m);
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
-                result.setElement(j, i, getElement(i, j));
-            }
-        }
-        return result;
+        return new MatrixMutable(transpose(this));
+    }
+
+    public static MatrixMutable zeroMatrix(int rows, int columns) {
+        return new MatrixMutable(zeroMatrixArray(rows, columns));
     }
 
     public static MatrixMutable diagonalMatrix(Double[] diagonalElements) {
-        MatrixMutable result = new MatrixMutable(diagonalElements.length, diagonalElements.length);
-        for (int i = 0; i < diagonalElements.length; i++) {
-            result.setElement(i, i, diagonalElements[i]);
-        }
-        return result;
+        return new MatrixMutable(diagonalMatrixArray(diagonalElements));
     }
 
     public static MatrixMutable identityMatrix(int size) {
-        MatrixMutable result = new MatrixMutable(size, size);
-        for (int i = 0; i < size; i++) {
-            result.setElement(i, i, 1d);
-        }
-        return result;
+        return new MatrixMutable(identityMatrixArray(size));
     }
 
     public static MatrixMutable rowMatrix(Double[] rowElements) {
-        MatrixMutable result = new MatrixMutable(1, rowElements.length);
-        result.setRowElements(0, rowElements);
-        return result;
+        return new MatrixMutable(rowMatrixArray(rowElements));
     }
 
     public static MatrixMutable columnMatrix(Double[] columnElements) {
-        MatrixMutable result = new MatrixMutable(columnElements.length, 1);
-        result.setColumnElements(0, columnElements);
-        return result;
+        return new MatrixMutable(columnMatrixArray(columnElements));
     }
 
-    public void setElement(int row, int column, Double value) {
-        elements.get(row).set(column, value);
+    public static MatrixMutable randomMatrix(int rows, int columns) {
+        return new MatrixMutable(randomMatrixArray(rows, columns));
     }
 
-    public void setRowElements(int row, Double[] values) {
-        for (int j = 0; j < getColumnsNumber(); j++) {
-            elements.get(row).set(j, values[j]);
-        }
+    public Double determinant() {
+        return determinant(getElements());
     }
 
-    public void setColumnElements(int column, Double[] values) {
-        for (int i = 0; i < getRowsNumber(); i++) {
-            elements.get(i).set(column, values[i]);
-        }
+    public MatrixMutable[] luDecomposition() {
+        Double[][][] lu = luDecomposition(getElements());
+        return new MatrixMutable[] { new MatrixMutable(lu[0]), new MatrixMutable(lu[1]) };
     }
 
     public boolean equals(Object o) {
@@ -164,7 +134,7 @@ public class MatrixMutable implements Matrix {
         if (o == this) return true;
 
         // If other object is not matrix
-        if (!(o instanceof Matrix matrix)) return false;
+        if (!(o instanceof MatrixMutable matrix)) return false;
 
         int rowsNumber = getRowsNumber();
         int columnsNumber = getColumnsNumber();
@@ -184,27 +154,62 @@ public class MatrixMutable implements Matrix {
     }
 
     public int hashCode() {
-        return elements.hashCode();
+        return Objects.hash(getClass(), elements);
+    }
+
+    public void setElement(int row, int column, Double value) {
+        elements.get(row).set(column, value);
+    }
+
+    public void setRowElements(int row, Double[] values) {
+        int n = getColumnsNumber();
+
+        validateArrayLength(values, n);
+
+        for (int j = 0; j < n; j++) {
+            setElement(row, j, values[j]);
+        }
+    }
+
+    public void setColumnElements(int column, Double[] values) {
+        int m = getRowsNumber();
+
+        validateArrayLength(values, m);
+
+        for (int i = 0; i < m; i++) {
+            setElement(i, column, values[i]);
+        }
+    }
+
+    public void setElements(Double[][] matrix) {
+        int m = getRowsNumber();
+        int n = getColumnsNumber();
+
+        validateDimension(matrix, m, n);
+
+        for (int i = 0; i < m; i++) {
+            setRowElements(i, matrix[i]);
+        }
     }
 
     public void changeDimension(int rows, int columns) {
         // Change rows number
-        if (rows < getRowsNumber()) {
+        if (getRowsNumber() > rows) {
             elements.subList(rows, getRowsNumber()).clear();
         } else {
-            for (int i = 0; i < rows - getRowsNumber(); i++) {
+            while (getRowsNumber() != rows) {
                 elements.add(new ArrayList<>(Collections.nCopies(columns, 0d)));
             }
         }
 
         // Change columns number
-        if (columns < getColumnsNumber()) {
+        if (getColumnsNumber() > columns) {
             for (int i = 0; i < getRowsNumber(); i++) {
                 elements.get(i).subList(columns, getColumnsNumber()).clear();
             }
         } else {
             for (int i = 0; i < getRowsNumber(); i++) {
-                elements.get(i).addAll(Collections.nCopies(columns - getColumnsNumber(), 0d));
+                elements.get(i).addAll(Collections.nCopies(columns - elements.get(i).size(), 0d));
             }
         }
     }

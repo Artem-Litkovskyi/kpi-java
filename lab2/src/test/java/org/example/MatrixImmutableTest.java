@@ -6,28 +6,42 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class MatrixImmutableTest {
     @Test
+    public void createEmptyMatrix() {
+        MatrixImmutable m = new MatrixImmutable();
+        assertEquals(0, m.getRowsNumber());
+        assertEquals(0, m.getColumnsNumber());
+    }
+
+    @Test
+    public void createMatrixFromArray() {
+        Double[][] mData = {{1d, 2d, 3d}, {4d, 5d, 6d}};
+        MatrixImmutable m = new MatrixImmutable(mData);
+        for (int i = 0; i < mData.length; i++) {
+            for (int j = 0; j < mData[0].length; j++) {
+                assertEquals(mData[i][j], m.getElement(i, j));
+            }
+        }
+    }
+
+    @Test
     public void createMatrixByCopying() {
-        MatrixImmutable m1 = instantiateRandomMatrix(3, 4);
+        MatrixImmutable m1 = MatrixImmutable.randomMatrix(3, 4);
         MatrixImmutable m2 = new MatrixImmutable(m1);
         assertEquals(m1, m2);
     }
 
     @Test
-    public void createMatrixFromArray() {
-        Double[][] m_data = {{1d, 2d, 3d}, {4d, 5d, 6d}};
-        MatrixImmutable m = new MatrixImmutable(m_data);
-        for (int i = 0; i < m_data.length; i++) {
-            for (int j = 0; j < m_data[0].length; j++) {
-                assertEquals(m.getElement(i, j), m_data[i][j]);
-            }
-        }
+    public void createMatrixOfSize() {
+        MatrixImmutable m = new MatrixImmutable(3, 4);
+        assertEquals(3, m.getRowsNumber());
+        assertEquals(4, m.getColumnsNumber());
     }
 
     @Test
     public void getMatrixDimension() {
         int a = 3;
         int b = 4;
-        MatrixImmutable m = instantiateRandomMatrix(a, b);
+        MatrixImmutable m = MatrixImmutable.randomMatrix(a, b);
         int[] dim = m.getDimension();
         assertEquals(2, dim.length);
         assertEquals(a, dim[0]);
@@ -72,6 +86,66 @@ public class MatrixImmutableTest {
         MatrixImmutable m1 = new MatrixImmutable(mData);
         MatrixImmutable r = new MatrixImmutable(rData);
         assertEquals(r, m1.transpose());
+    }
+
+    @Test
+    public void determinant() {
+        Double[][] m1Data = {{9d}};
+        Double[][] m2Data = {{9d, 7d}, {5d, -4d}};
+        Double[][] m3Data = {{9d, 7d, 5d}, {5d, -4d, 51d}, {-10d, 6d, 13d}};
+        Double[][] m4Data = {
+                {9d, 7d, 5d, 5d, -3d},
+                {5d, -4d, 51d, -31d, 31d},
+                {-10d, 6d, 13d, 19d, 1d},
+                {2d, 8d, -1d, -1d, 7d},
+                {17d, 6d, 10d, 13d, 9d},
+        };
+
+        Double m1Det = 9d;
+        Double m2Det = -71d;
+        Double m3Det = -7297d;
+        Double m4Det = 3103998d;
+
+        MatrixImmutable m1 = new MatrixImmutable(m1Data);
+        MatrixImmutable m2 = new MatrixImmutable(m2Data);
+        MatrixImmutable m3 = new MatrixImmutable(m3Data);
+        MatrixImmutable m4 = new MatrixImmutable(m4Data);
+
+        assertEquals(m1Det, m1.determinant());
+        assertEquals(m2Det, m2.determinant());
+        assertEquals(m3Det, m3.determinant());
+        assertEquals(m4Det, m4.determinant());
+    }
+
+    @Test
+    public void luDecomposition() {
+        double precision = 0.001d;
+
+        Double[][] m1Data = {{9d, 7d}, {5d, -4d}};
+        Double[][] m2Data = {{9d, 7d, 5d}, {5d, -4d, 51d}, {-10d, 6d, 13d}};
+
+        Double[][] l1Data = {{1d, 0d}, {5d/9d, 1d}};
+        Double[][] u1Data = {{9d, 7d}, {0d, -71d/9d}};
+
+        Double[][] l2Data = {{1d, 0d, 0d}, {5d/9d, 1d, 0d}, {-10d/9d, -124d/71d, 1d}};
+        Double[][] u2Data = {{9d, 7d, 5d}, {0d, -71d/9d, 434d/9d}, {0d, 0d, 7297d/71d}};
+
+        MatrixImmutable m1 = new MatrixImmutable(m1Data);
+        MatrixImmutable m2 = new MatrixImmutable(m2Data);
+
+        MatrixImmutable l1 = new MatrixImmutable(l1Data);
+        MatrixImmutable u1 = new MatrixImmutable(u1Data);
+
+        MatrixImmutable l2 = new MatrixImmutable(l2Data);
+        MatrixImmutable u2 = new MatrixImmutable(u2Data);
+
+        MatrixImmutable[] lu1 = m1.luDecomposition();
+        MatrixImmutable[] lu2 = m2.luDecomposition();
+
+        assertTrue(compareWithPrecision(l1, lu1[0], precision));
+        assertTrue(compareWithPrecision(u1, lu1[1], precision));
+        assertTrue(compareWithPrecision(l2, lu2[0], precision));
+        assertTrue(compareWithPrecision(u2, lu2[1], precision));
     }
 
     @Test
@@ -124,15 +198,17 @@ public class MatrixImmutableTest {
         Double[][] m3Data = {{0d, 1d, 0d}, {0d, 1d, 0d}};
 
         MatrixImmutable m1 = new MatrixImmutable(m1Data);
-        MatrixImmutable m2 = new MatrixImmutable(m2Data);
-        MatrixImmutable m3 = new MatrixImmutable(m3Data);
-        MatrixImmutable m4 = new MatrixImmutable(m1Data);
+        MatrixMutable m2 = new MatrixMutable(m2Data);
+        MatrixImmutable m3 = new MatrixImmutable(m2Data);
+        MatrixImmutable m4 = new MatrixImmutable(m3Data);
+        MatrixImmutable m5 = new MatrixImmutable(m1Data);
 
         assertEquals(m1, m1);  // Same object
         assertNotEquals(m1, new Object());  // Object of other type
-        assertNotEquals(m1, m2);  // Different dimensions
-        assertNotEquals(m1, m3);  // Different elements
-        assertEquals(m1, m4);  // Same elements
+        assertNotEquals(m1, m2);  // Mutable matrix
+        assertNotEquals(m1, m3);  // Different dimensions
+        assertNotEquals(m1, m4);  // Different elements
+        assertEquals(m1, m5);  // Same elements
     }
 
     @Test
@@ -142,22 +218,27 @@ public class MatrixImmutableTest {
         Double[][] m3Data = {{0d, 1d, 0d}, {0d, 1d, 0d}};
 
         MatrixImmutable m1 = new MatrixImmutable(m1Data);
-        MatrixImmutable m2 = new MatrixImmutable(m2Data);
-        MatrixImmutable m3 = new MatrixImmutable(m3Data);
-        MatrixImmutable m4 = new MatrixImmutable(m1Data);
+        MatrixMutable m2 = new MatrixMutable(m1Data);
+        MatrixImmutable m3 = new MatrixImmutable(m2Data);
+        MatrixImmutable m4 = new MatrixImmutable(m3Data);
+        MatrixImmutable m5 = new MatrixImmutable(m1Data);
 
-        assertNotEquals(m1.hashCode(), m2.hashCode());  // Different dimensions
-        assertNotEquals(m1.hashCode(), m3.hashCode());  // Different elements
-        assertEquals(m1.hashCode(), m4.hashCode());  // Same elements
+        assertNotEquals(m1.hashCode(), m2.hashCode());  // Mutable matrix
+        assertNotEquals(m1.hashCode(), m3.hashCode());  // Different dimensions
+        assertNotEquals(m1.hashCode(), m4.hashCode());  // Different elements
+        assertEquals(m1.hashCode(), m5.hashCode());  // Same elements
     }
 
-    MatrixImmutable instantiateRandomMatrix(int rows, int columns) {
-        Double[][] result = new Double[rows][columns];
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < columns; j++) {
-                result[i][j] = Math.random();
+    boolean compareWithPrecision(Matrix a, Matrix b, double precision) {
+        if (a.getRowsNumber() != b.getRowsNumber()) return false;
+        if (a.getColumnsNumber() != b.getColumnsNumber()) return false;
+
+        for (int i = 0; i < a.getRowsNumber(); i++) {
+            for (int j = 0; j < a.getColumnsNumber(); j++) {
+                if (Math.abs(a.getElement(i, j) - b.getElement(i, j)) > precision) return false;
             }
         }
-        return new MatrixImmutable(result);
+
+        return true;
     }
 }

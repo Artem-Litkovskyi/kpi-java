@@ -8,33 +8,62 @@ public class Main {
         System.out.printf("\n\n\n%s\n\n", getSeparator("Lab2: Моделювання математичних об'єктів"));
 
         Double[][] m1Data = new Double[][] {
-                {0d, 0d, 0d},
-                {0d, 0d, 0d},
-                {0d, 0d, 0d},
+                {1d, 2d, 3d},
+                {4d, 5d, 6d},
+                {7d, 8d, 9d},
         };
 
         Double[][] m2Data = new Double[][] {
-                {0d, 0d, 0d},
-                {0d, 0d, 0d},
-                {0d, 0d, 0d},
+                {-1d, 2d, -3d},
+                {4d, -5d, 6d},
+                {-7d, 8d, -9d},
         };
 
-        MatrixMutable m1 = new MatrixMutable(m1Data);
-        MatrixMutable m2 = new MatrixMutable(m2Data);
-        MatrixMutable result = m1.add(m2);
+        // Matrix creation
+        MatrixMutable m1 = new MatrixMutable();
+//        MatrixMutable m1 = new MatrixMutable(3, 4);
+//        MatrixMutable m1 = new MatrixMutable(m1Data);
+//        MatrixMutable m2 = new MatrixMutable(m1);
+//        MatrixMutable m2 = new MatrixMutable(m2Data);
 
-        print(result);
+        System.out.println("m1:");
+        print(m1);
+//        System.out.println("m2:");
+//        print(m2);
+//        System.out.println();
+
+        // Setters
+//        setters(m1, m2Data);
+
+        // Getters
+//        getters(m1);
+
+        // Dimension
+//        dimension(m1);
+
+        // Operations
+//        operations(m1, m2);
+
+        // Default matrices
+//        defaultMatrices();
 
         System.out.printf("\n%s\n\n\n", getSeparator());
     }
 
-    static void print(Matrix matrix) {
+    public static void print(Double[] array) {
+        System.out.print("[");
+
+        for (Double value : array)
+            System.out.printf("%12.2f", value);
+
+        System.out.print("]\n");
+    }
+
+    public static void print(Matrix matrix) {
+        if (matrix.getRowsNumber() == 0)
+            System.out.println("No elements");
         for (int i = 0; i < matrix.getRowsNumber(); i++) {
-            System.out.print("[");
-            for (int j = 0; j < matrix.getColumnsNumber(); j++) {
-                System.out.printf("%12.2f", matrix.getElement(i, j));
-            }
-            System.out.print("]\n");
+            print(matrix.getRowElements(i));
         }
     }
 
@@ -52,5 +81,61 @@ public class Main {
         return String.valueOf(SEP_SYMBOL).repeat(symbolsNumber + symbolsAdditional) +
                 String.format(" %s ", messageStripped) +
                 String.valueOf(SEP_SYMBOL).repeat(symbolsNumber);
+    }
+
+    private static void setters(MatrixMutable a, Double[][] newData) {
+        System.out.println("Set element:");
+        a.setElement(0, 1, -100d);
+        print(a);
+        System.out.println("Set row:");
+        a.setRowElements(1, new Double[] {-100d, -200d, -300d});
+        print(a);
+        System.out.println("Set column:");
+        a.setColumnElements(1, new Double[] {-100d, -200d, -300d});
+        print(a);
+        System.out.println("Set all elements:");
+        a.setElements(newData);
+        print(a);
+    }
+
+    private static void getters(Matrix a) {
+        System.out.printf("Get element: %.2f\n", a.getElement(0, 1));
+        System.out.print("Get row: ");
+        print(a.getRowElements(1));
+        System.out.print("Get column: ");
+        print(a.getColumnElements(1));
+    }
+
+    private static void dimension(MatrixMutable a) {
+        System.out.printf("Rows: %d\n", a.getRowsNumber());
+        System.out.printf("Columns: %d\n", a.getColumnsNumber());
+        int[] dim = a.getDimension();
+        System.out.printf("Dimension: %dx%d\n", dim[0], dim[1]);
+
+        a.changeDimension(2, 5);
+        System.out.println("\nChanged dimension:");
+        print(a);
+    }
+
+    private static void operations(Matrix a, Matrix b) {
+        System.out.println("Add:");
+        print(a.add(b));
+        System.out.println("Multiply by number:");
+        print(a.multiply(2d));
+        System.out.println("Multiply by matrix:");
+        print(a.multiply(b));
+        System.out.println("Transpose:");
+        print(a.transpose());
+    }
+
+    private static void defaultMatrices() {
+        System.out.println("Diagonal:");
+        print(MatrixMutable.diagonalMatrix(new Double[] {-100d, -200d, -300d}));
+        System.out.println("Identity:");
+        print(MatrixMutable.identityMatrix(5));
+        System.out.println("Row:");
+        print(MatrixMutable.rowMatrix(new Double[] {-100d, -200d, -300d}));
+        System.out.println("Column:");
+        print(MatrixMutable.columnMatrix(new Double[] {-100d, -200d, -300d}));
     }
 }
