@@ -20,9 +20,9 @@ public class Main {
         };
 
         // Matrix creation
-        MatrixMutable m1 = new MatrixMutable();
+//        MatrixMutable m1 = new MatrixMutable();
 //        MatrixMutable m1 = new MatrixMutable(3, 4);
-//        MatrixMutable m1 = new MatrixMutable(m1Data);
+        MatrixMutable m1 = new MatrixMutable(m1Data);
 //        MatrixMutable m2 = new MatrixMutable(m1);
 //        MatrixMutable m2 = new MatrixMutable(m2Data);
 
@@ -46,6 +46,9 @@ public class Main {
 
         // Default matrices
 //        defaultMatrices();
+
+        // Upper and lower triangular
+//        luDecomposition(m1);
 
         System.out.printf("\n%s\n\n\n", getSeparator());
     }
@@ -137,5 +140,13 @@ public class Main {
         print(MatrixMutable.rowMatrix(new Double[] {-100d, -200d, -300d}));
         System.out.println("Column:");
         print(MatrixMutable.columnMatrix(new Double[] {-100d, -200d, -300d}));
+    }
+
+    private static void luDecomposition(Matrix a) {
+        Matrix[] lu = a.luDecomposition();
+        System.out.println("Lower triangular:");
+        print(lu[0]);
+        System.out.println("Upper triangular:");
+        print(lu[1]);
     }
 }

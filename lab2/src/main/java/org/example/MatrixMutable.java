@@ -14,18 +14,21 @@ public class MatrixMutable extends AbstractMatrix {
     public MatrixMutable(Double[][] matrix) {
         validateRowLengths(matrix);
         elements = new ArrayList<>();
+        if (matrix.length == 0) return;
         changeDimension(matrix.length, matrix[0].length);
         setElements(matrix);
     }
 
     public MatrixMutable(Matrix matrix) {
         elements = new ArrayList<>();
+        if (matrix.getRowsNumber() == 0) return;
         changeDimension(matrix.getRowsNumber(), matrix.getColumnsNumber());
         setElements(matrix.getElements());
     }
 
     public MatrixMutable(int rows, int columns) {
         elements = new ArrayList<>();
+        if (rows == 0) return;
         changeDimension(rows, columns);
         setElements(zeroMatrixArray(rows, columns));
     }
