@@ -21,8 +21,10 @@ public class Main {
 
         // Matrix creation
 //        MatrixMutable m1 = new MatrixMutable();
+        MatrixImmutable m1 = MatrixImmutable.randomMatrix(3, 3);
+        MatrixMutable m2 = new MatrixMutable(m1);
 //        MatrixMutable m1 = new MatrixMutable(3, 4);
-        MatrixMutable m1 = new MatrixMutable(m1Data);
+//        MatrixMutable m1 = new MatrixMutable(m1Data);
 //        MatrixMutable m2 = new MatrixMutable(m1);
 //        MatrixMutable m2 = new MatrixMutable(m2Data);
 
@@ -30,7 +32,7 @@ public class Main {
         print(m1);
 //        System.out.println("m2:");
 //        print(m2);
-//        System.out.println();
+        System.out.println();
 
         // Setters
 //        setters(m1, m2Data);
@@ -49,6 +51,18 @@ public class Main {
 
         // Upper and lower triangular
 //        luDecomposition(m1);
+        Matrix[] lu = m1.luDecomposition();
+        MatrixImmutable ml = new MatrixImmutable(lu[0]);
+        MatrixImmutable mu = new MatrixImmutable(lu[1]);
+
+        System.out.println("Lower triangular:");
+        print(lu[0]);
+        System.out.println("Upper triangular:");
+        print(lu[1]);
+
+        System.out.println();
+        print(ml.multiply(mu));
+
 
         System.out.printf("\n%s\n\n\n", getSeparator());
     }
