@@ -9,6 +9,6 @@ public class ContainerImpl implements Container {
 
     @Override
     public <T> T getComponent(Class<T> clazz) {
-        return binder.get(clazz);
+        return binder.getInstance(clazz);
     }
 }

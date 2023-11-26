@@ -6,6 +6,6 @@ public class EnvironmentImpl implements Environment {
     public Container configure(Configuration configuration) {
         BinderImpl binder = new BinderImpl();
         configuration.configure(binder);
-        return new ContainerImpl(binder);  // TODO: maybe improve
+        return new ContainerImpl(binder);
     }
 }

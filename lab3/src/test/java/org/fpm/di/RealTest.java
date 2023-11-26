@@ -2,7 +2,6 @@ package org.fpm.di;
 
 import org.fpm.di.example.MySingleton;
 import org.fpm.di.example.MyPrototype;
-import org.fpm.di.example.MyConfiguration;
 import org.fpm.di.example.A;
 import org.fpm.di.example.B;
 import org.fpm.di.example.UseA;
@@ -20,7 +19,7 @@ public class RealTest {
     @Before
     public void setUp() {
         Environment env = new EnvironmentImpl();
-        container = env.configure(new MyConfiguration());
+        container = env.configure(new MyConfigurationExtended());
     }
 
     @Test
@@ -48,5 +47,28 @@ public class RealTest {
     public void shouldBuildInjectDependencies() {
         final UseA hasADependency = container.getComponent(UseA.class);
         assertSame(hasADependency.getDependency(), container.getComponent(B.class));
+    }
+
+    @Test
+    public void shouldInjectDependencyChain() {
+        // Should instantiate regardless of the binding order in the configuration
+        final MyObjectWithDependencyChain object = container.getComponent(MyObjectWithDependencyChain.class);
+
+        // Should create a new instance of MyPrototype
+        assertNotSame(object.getMyPrototype(), container.getComponent(MyPrototype.class));
+
+        // Should create a new instance of UseA
+        // Should inject the same instance of B into the new instance of UseA
+        assertSame(object.getUseA().getDependency(), container.getComponent(B.class));
+    }
+
+    @Test(expected = ClassNotBoundException.class)
+    public void shouldThrowClassNotBoundException() {
+        container.getComponent(MyObjectNotBound.class);
+    }
+
+    @Test(expected = NoValidConstructorException.class)
+    public void shouldThrowNoValidConstructorException() {
+        container.getComponent(MyObjectWithNoValidConstructors.class);
     }
 }
